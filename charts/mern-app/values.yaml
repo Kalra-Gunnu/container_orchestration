@@ -1,0 +1,18 @@
+mongo:
+  username: root
+  password: example
+  image: mongo:5.0
+  port: 27017
+  replicas: 1
+
+backend:
+  image: kalra1994/learnerreportcs-backend:latest
+  port: 5000
+  replicas: 2
+  mongoUri: mongodb://root:example@mongo:27017/
+
+frontend:
+  image: kalra1994/learnerreportcs-frontend:latest
+  port: 3000
+  replicas: 2
+  apiUrl: http://backend:5000

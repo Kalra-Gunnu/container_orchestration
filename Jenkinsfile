@@ -1,0 +1,34 @@
+pipeline {
+  agent any
+  environment {
+    DOCKERHUB_REPO = "kalra1994"
+  }
+  stages {
+    stage('Clone Repos') {
+      steps {
+        git url: 'https://github.com/UnpredictablePrashant/learnerReportCS_frontend', branch: 'main', changelog: false, poll: false
+        git url: 'https://github.com/UnpredictablePrashant/learnerReportCS_backend', branch: 'main', changelog: false, poll: false
+      }
+    }
+    stage('Build Docker Images') {
+      steps {
+        sh 'docker build -t $DOCKERHUB_REPO/learnerreportcs-frontend:latest ./learnerReportCS_frontend'
+        sh 'docker build -t $DOCKERHUB_REPO/learnerreportcs-backend:latest ./learnerReportCS_backend'
+      }
+    }
+    stage('Push Docker Images') {
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+          sh "echo $PASSWORD | docker login -u $USERNAME --password-stdin"
+          sh 'docker push $DOCKERHUB_REPO/learnerreportcs-frontend:latest'
+          sh 'docker push $DOCKERHUB_REPO/learnerreportcs-backend:latest'
+        }
+      }
+    }
+    stage('Deploy to K8s via Helm') {
+      steps {
+        sh 'helm upgrade --install mern-app ./charts/mern-app --values ./charts/mern-app/values.yaml'
+      }
+    }
+  }
+}
