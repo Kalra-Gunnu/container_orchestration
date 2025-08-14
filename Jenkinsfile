@@ -33,6 +33,7 @@ pipeline {
     }
     stage('Deploy to K8s via Helm') {
       steps {
+        sh 'kubectl apply -f k8s/mongo-secret.yaml'
         sh 'helm upgrade --install mern-app ./charts/mern-app --values ./charts/mern-app/values.yaml'
       }
     }
