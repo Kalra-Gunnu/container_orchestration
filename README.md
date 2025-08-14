@@ -58,6 +58,7 @@ container_orchestration/
 │           ├── frontend-service.yaml
 │           ├── mongo-deployment.yaml
 │           └── mongo-service.yaml
+├── Screenshots/                # Stores the screenshots
 ├── Jenkinsfile                 # CI/CD pipeline definition
 └── README.md                   # Documentation
 ```
