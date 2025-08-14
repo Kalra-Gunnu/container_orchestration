@@ -9,6 +9,7 @@ This repository contains a fully automated **CI/CD pipeline** for a microservice
 * [Assignment Overview](#assignment-overview)
 * [Core Technologies](#core-technologies)
 * [Repository Structure](#repository-structure)
+* [Kubernetes and Helm Structure](#kubernetes-and-helm-structure)
 * [Pipeline Workflow](#pipeline-workflow)
 * [Setup and Execution](#setup-and-execution)
 * [Challenges and Solutions](#challenges-and-solutions)
@@ -60,6 +61,31 @@ container_orchestration/
 ├── Jenkinsfile                 # CI/CD pipeline definition
 └── README.md                   # Documentation
 ```
+![Architecture](Screenshots/1.png)
+---
+
+## Kubernetes and Helm Structure
+
+The Kubernetes and Helm structure is designed to deploy and manage the microservices efficiently.
+
+### Kubernetes (`k8s/`)
+
+* **mongo-secret.yaml:** Contains sensitive information like MongoDB credentials as Kubernetes Secrets.
+
+### Helm Chart (`charts/mern-app/`)
+
+* **Chart.yaml:** Metadata for the Helm chart.
+* **values.yaml:** Configuration values for the chart, such as image repository, tags, and service ports.
+* **templates/**
+
+  * **backend-deployment.yaml:** Deployment manifest for the backend service.
+  * **backend-service.yaml:** Service definition for backend access.
+  * **frontend-deployment.yaml:** Deployment manifest for the frontend service.
+  * **frontend-service.yaml:** Service definition for frontend access.
+  * **mongo-deployment.yaml:** Deployment for MongoDB.
+  * **mongo-service.yaml:** Service definition for MongoDB access.
+
+This separation ensures that infrastructure, configurations, and secrets are maintained cleanly and can be deployed consistently across different environments using Helm.
 
 ---
 
@@ -102,8 +128,8 @@ The **Jenkinsfile** orchestrates the CI/CD pipeline in the following stages:
 
 3. **Build Docker Images:**
 
-   * Automatically fixes frontend npm dependency issues (`npm install --legacy-peer-deps`)
-   * Builds frontend and backend Docker images and tags them with your Docker Hub username
+   * A critical fix is applied on-the-fly to the frontend Dockerfile to solve a dependency issue (`npm install --legacy-peer-deps`)
+   * Builds frontend and backend Docker images and tags them with Docker Hub username
 
 4. **Push Docker Images:**
 
@@ -127,7 +153,42 @@ The **Jenkinsfile** orchestrates the CI/CD pipeline in the following stages:
 * Docker Hub account
 * Running Jenkins instance
 
-### Steps
+### Local Deployment
+
+1. Clone **frontend** and **backend** repos.
+2. Build Docker images:
+
+```bash
+# Backend
+docker build -t my-local-backend:latest ./learnerReportCS_backend
+
+# Frontend
+docker build -t my-local-frontend:latest ./learnerReportCS_frontend
+```
+
+*Resolve frontend npm issues with `--legacy-peer-deps` flag.*
+
+![Build BE image](Screenshots/2.png)
+![Build FE image](Screenshots/3.png)
+
+3. Use local Helm values:
+
+![values.local.yaml](Screenshots/4.png)
+
+```bash
+helm upgrade --install mern-app ./charts/mern-app -f ./charts/mern-app/values.local.yaml
+```
+![Deploy](Screenshots/5.png)
+
+![App Running](Screenshots/6.png)
+
+4. Stop deployment:
+
+```bash
+helm uninstall mern-app
+```
+
+### Jenkins Deployment
 
 1. **Launch Jenkins with Docker Access**
 
@@ -164,7 +225,7 @@ docker run -p 8080:8080 -p 50000:50000 \
 | # | Challenge                        | Problem Description                            | Solution                                                         |
 | - | -------------------------------- | ---------------------------------------------- | ---------------------------------------------------------------- |
 | 1 | Local Build Failure              | Frontend Docker build fails during npm install | Use `npm install --legacy-peer-deps`                             |
-| 2 | Initial K8s Deployment           | Needed local values.yaml for Helm testing      | Created `values.local.yaml` with `imagePullPolicy: IfNotPresent` |
+| 2 | Initial K8s Deployment           | Needed local values.yaml for Helm testing      | Created `values.local.yaml` with `imagePullPolicy: Never` |
 | 3 | Jenkins Can't Find Git Branch    | Default branch is `main` not `master`          | Updated Branch Specifier to `*/main`                             |
 | 4 | docker: not found in Pipeline    | Jenkins agent lacked Docker access             | Mounted Docker socket from host                                  |
 | 5 | Agent Lacked Tools               | Kubectl and Helm missing in agent              | Used custom agent image `kalra1994/helm-kubectl-docker:latest`   |
@@ -183,6 +244,7 @@ kubectl get pods
 kubectl get service
 ```
 
+![Pods & Services](Screenshots/7.png)
 2. **Find Frontend URL**
 
 * Locate frontend service with `TYPE: LoadBalancer`
@@ -192,3 +254,4 @@ kubectl get service
 
 * Usually: `http://localhost`
 * You should see the running MERN application
+![Final App](Screenshots/8.png)
