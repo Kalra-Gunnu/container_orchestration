@@ -12,8 +12,12 @@ pipeline {
     stage('Clone Repos') {
       steps {
         checkout scm
-        git url: 'https://github.com/UnpredictablePrashant/learnerReportCS_frontend', branch: 'main', subdirectory: 'learnerReportCS_frontend'
-        git url: 'https://github.com/UnpredictablePrashant/learnerReportCS_backend', branch: 'main', subdirectory: 'learnerReportCS_backend'
+        dir('learnerReportCS_frontend') {
+            git url: 'https://github.com/UnpredictablePrashant/learnerReportCS_frontend', branch: 'main'
+        }
+        dir('learnerReportCS_backend') {
+            git url: 'https://github.com/UnpredictablePrashant/learnerReportCS_backend', branch: 'main'
+        }
       }
     }
     stage('Build Docker Images') {
