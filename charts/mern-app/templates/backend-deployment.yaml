@@ -15,8 +15,9 @@ spec:
       containers:
         - name: backend
           image: {{ .Values.backend.image }}
+          imagePullPolicy: {{ .Values.backend.imagePullPolicy }}
           ports:
             - containerPort: {{ .Values.backend.port }}
           env:
-            - name: MONGO_URI
-              value: {{ .Values.backend.mongoUri }}
+            - name: ATLAS_URI #in the backend, this is used to connect to MongoDB
+              value: {{ .Values.backend.mongoUri | quote }}

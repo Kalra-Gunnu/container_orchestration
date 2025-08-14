@@ -1,0 +1,22 @@
+# This file is part of the MERN app Helm chart configuration for local development and testing.
+
+backend:
+  image: my-local-backend:latest
+  imagePullPolicy: Never
+  port: 5000
+  replicas: 1 # Use 1 replica for local testing
+  mongoUri: mongodb://root:example@mongo:27017/
+
+frontend:
+  image: my-local-frontend:latest
+  imagePullPolicy: Never
+  port: 3000
+  replicas: 1 # Use 1 replica for local testing
+  apiUrl: http://backend:5000
+
+mongo:
+  username: root
+  password: example
+  image: mongo:5.0
+  port: 27017
+  replicas: 1
