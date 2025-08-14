@@ -1,10 +1,10 @@
 pipeline {
   agent {
-        docker {
-            image 'devopscorner/kubectl-helm-docker:latest'
-            args '-v /var/run/docker.sock:/var/run/docker.sock'
-        }
+    docker {
+        image 'kalra1994/helm-kubectl-docker:latest'
+        args '-v /var/run/docker.sock:/var/run/docker.sock'
     }
+  }
   environment {
     DOCKERHUB_REPO = "kalra1994"
   }
