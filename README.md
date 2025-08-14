@@ -49,6 +49,7 @@ container_orchestration/
 │   └── mern-app/
 │       ├── Chart.yaml
 │       ├── values.yaml
+        ├── values.local.yaml   # Used for local deployment
 │       └── templates/
 │           ├── backend-deployment.yaml
 │           ├── backend-service.yaml
@@ -67,7 +68,32 @@ container_orchestration/
 The **Jenkinsfile** orchestrates the CI/CD pipeline in the following stages:
 
 1. **Agent Setup:**
-   Uses `kalra1994/helm-kubectl-docker:latest` image with Docker, Kubectl, and Helm pre-installed.
+    - Created a local Dockerfile
+
+    ```dockerfile
+    FROM dtzar/helm-kubectl:latest
+    # Install Docker CLI
+    USER root
+    RUN apk add --no-cache docker-cli
+    USER jenkins
+    ```
+
+    - Then build my own image 
+
+    ```powershell
+    docker build -t yourdockerhubusername/helm-kubectl-docker:latest .
+    docker push yourdockerhubusername/helm-kubectl-docker:latest
+    ```
+
+    - Use it in Jenkins pipeline
+    ```groovy
+    agent {
+        docker {
+            image 'yourdockerhubusername/helm-kubectl-docker:latest'
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
+    ```
 
 2. **Checkout and Clone Repositories:**
 
@@ -87,6 +113,8 @@ The **Jenkinsfile** orchestrates the CI/CD pipeline in the following stages:
 
    * Applies MongoDB secret (`kubectl apply`)
    * Deploys the application stack using Helm (`helm upgrade --install`)
+
+6. Final [Jenkinsfile](Jenkinsfile)
 
 ---
 
