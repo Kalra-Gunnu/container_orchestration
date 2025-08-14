@@ -1,11 +1,17 @@
 pipeline {
-  agent any
+  agent {
+        docker {
+            image 'devopscorner/kubectl-helm-docker:latest'
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
   environment {
     DOCKERHUB_REPO = "kalra1994"
   }
   stages {
     stage('Clone Repos') {
       steps {
+        checkout scm
         git url: 'https://github.com/UnpredictablePrashant/learnerReportCS_frontend', branch: 'main', changelog: false, poll: false
         git url: 'https://github.com/UnpredictablePrashant/learnerReportCS_backend', branch: 'main', changelog: false, poll: false
       }
