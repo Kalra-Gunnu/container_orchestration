@@ -62,7 +62,7 @@ container_orchestration/
 ├── Jenkinsfile                 # CI/CD pipeline definition
 └── README.md                   # Documentation
 ```
-
+![Architecture Creation](Screenshots/1.png)
 ---
 
 ## Kubernetes and Helm Structure
