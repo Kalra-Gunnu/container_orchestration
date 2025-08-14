@@ -34,13 +34,15 @@ pipeline {
       }
     }
     stage('Push Docker Images') {
-      steps {
-        withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-          sh "echo $PASSWORD | docker login -u $USERNAME --password-stdin"
-          sh 'docker push $DOCKERHUB_REPO/learnerreportcs-frontend:latest'
-          sh 'docker push $DOCKERHUB_REPO/learnerreportcs-backend:latest'
+        steps {
+            withEnv(["HOME=${env.WORKSPACE}"]) {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    sh "echo $PASSWORD | docker login -u $USERNAME --password-stdin"
+                    sh 'docker push ${DOCKERHUB_REPO}/learnerreportcs-frontend:latest'
+                    sh 'docker push ${DOCKERHUB_REPO}/learnerreportcs-backend:latest'
+                }
+            }
         }
-      }
     }
     stage('Deploy to K8s via Helm') {
       steps {
