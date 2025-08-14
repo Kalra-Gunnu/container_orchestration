@@ -24,9 +24,10 @@ pipeline {
       steps {
         // Fix the frontend Dockerfile to use legacy peer dependencies
         script {
-        dir('learnerReportCS_frontend') {
-            echo "Fixing frontend Dockerfile for build..."
-            sh "sed -i 's/RUN npm install --silent/RUN npm install --legacy-peer-deps/g' Dockerfile"
+          dir('learnerReportCS_frontend') {
+              echo "Fixing frontend Dockerfile for build..."
+              sh "sed -i 's/RUN npm install --silent/RUN npm install --legacy-peer-deps/g' Dockerfile"
+          }
         }
         sh 'docker build -t $DOCKERHUB_REPO/learnerreportcs-frontend:latest ./learnerReportCS_frontend'
         sh 'docker build -t $DOCKERHUB_REPO/learnerreportcs-backend:latest ./learnerReportCS_backend'
